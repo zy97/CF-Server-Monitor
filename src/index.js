@@ -1,4 +1,4 @@
-import { initDatabase, monthlyCleanup, getMetricsHistory, rebuildDatabase } from './database/schema.js';
+import { initDatabase, monthlyCleanup, dropMetricsHistoryOld, getMetricsHistory, rebuildDatabase } from './database/schema.js';
 import { checkOfflineNodes } from './services/notification.js';
 import { updateDatabase } from './database/updateDatabase.js';
 import { handleAdminAPI } from './handlers/admin.js';
@@ -321,6 +321,10 @@ export default {
       console.log('[Cron] 开始执行每月数据清理任务（表轮换）');
       await monthlyCleanup(env.DB);
       console.log('[Cron] 每月数据清理任务完成');
+    } else if (cron === '* * 8 * *') {
+      console.log('[Cron] 开始执行每月8号清理旧表任务');
+      await dropMetricsHistoryOld(env.DB);
+      console.log('[Cron] 每月8号清理旧表任务完成');
     } else if (cron === '*/1 * * * *') {
       console.log('[Cron] 开始执行离线节点检测');
       await checkOfflineNodes(env.DB);

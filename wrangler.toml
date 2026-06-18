@@ -6,10 +6,11 @@ compatibility_flags = ["nodejs_compat"]
 
 # 定时任务配置（UTC）
 # - 每月1号UTC零点：执行数据清理（表轮换）
+# - 每月8号UTC零点：清理旧的 metrics_history_old 表
 # - 每分钟：执行离线节点检测
 # - 注意同步修改deploy和index.js scheduled函数里面的值
 [triggers]
-crons = ["* * 1 * *", "*/1 * * * *"]
+crons = ["* * 1 * *", "* * 8 * *", "*/1 * * * *"]
 
 [assets]
 directory = "./dist"

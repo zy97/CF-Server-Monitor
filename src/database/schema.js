@@ -272,6 +272,17 @@ export async function getMetricsHistory(db, serverId, hours, columns) {
   return result;
 }
 
+export async function dropMetricsHistoryOld(db) {
+  try {
+    await db.prepare(`DROP TABLE IF EXISTS metrics_history_old`).run();
+    console.log('[Cleanup] 已删除 metrics_history_old 表');
+    return { success: true };
+  } catch (e) {
+    console.error('[Cleanup] 删除 metrics_history_old 表失败:', e);
+    return { success: false, error: e.message };
+  }
+}
+
 export async function monthlyCleanup(db) {
   try {
     console.log('[Cleanup] 开始执行表轮换操作...');
