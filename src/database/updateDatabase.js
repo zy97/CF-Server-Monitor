@@ -8,9 +8,6 @@ export async function updateDatabase(db) {
   try {
     const historyIndex = await ensureHistoryIndex(db);
     results.push({ name: 'metrics_history 索引检查', ...historyIndex });
-
-    const migrateLoad = await migrateLoadToLoadAvg(db);
-    results.push({ name: 'metrics_history load -> load_avg 迁移', ...migrateLoad });
     
     const serversCols = await addServerColumns(db);
     results.push({ name: 'servers 表列更新', ...serversCols });
@@ -76,36 +73,6 @@ export async function ensureHistoryIndex(db) {
     return { success: true, created: true, message: '已创建索引' };
   } catch (e) {
     debug('检查/创建 metrics_history 索引失败:', e);
-    return { success: false, error: e.message };
-  }
-}
-
-async function migrateLoadToLoadAvg(db) {
-  try {
-    const { results: columns } = await db.prepare(`PRAGMA table_info(metrics_history)`).all();
-    const existingCols = columns.map(c => c.name);
-    
-    if (!existingCols.includes('load')) {
-      return { success: true, migrated: 0, message: '无需迁移（没有旧的 load 字段）' };
-    }
-    
-    let migrated = 0;
-    
-    if (!existingCols.includes('load_avg')) {
-      await db.prepare(`ALTER TABLE metrics_history ADD COLUMN load_avg TEXT DEFAULT '0'`).run();
-    }
-    
-    const { meta: updateResult } = await db.prepare(
-      `UPDATE metrics_history SET load_avg = load WHERE load IS NOT NULL AND load_avg = '0'`
-    ).run();
-    migrated = updateResult.changes;
-    
-    await db.prepare(`ALTER TABLE metrics_history DROP COLUMN load`).run();
-    debug(`✅ 已迁移 ${migrated} 条记录的 load -> load_avg`);
-    
-    return { success: true, migrated, message: `已迁移 ${migrated} 条记录并删除旧字段` };
-  } catch (e) {
-    debug('迁移 load -> load_avg 失败:', e);
     return { success: false, error: e.message };
   }
 }

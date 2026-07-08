@@ -463,7 +463,6 @@ export async function saveMetricsHistory(db, serverId, historyPartitionId, metri
 export async function getLatestMetrics(db, serverId) {
   try {
     const partitionId = await getServerHistoryPartitionId(db, serverId);
-    debug(`Server ${serverId} history_partition_id: ${partitionId}`);
 
     const { startId, endId } = getHistoryIdRange(partitionId);
     debug(`Server ${serverId} history_id_range: ${startId} - ${endId}`);

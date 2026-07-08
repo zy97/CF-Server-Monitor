@@ -150,8 +150,6 @@ export async function getServerHistoryPartitionId(db, serverId) {
   if (!server) {
     debug(`Server ${serverId} not found`);
     throw new Error(`Server ${serverId} not found`);
-  }else{
-    debug(`Server ${serverId} history_partition_id: ${server.history_partition_id}`);
   }
   return server.history_partition_id;
 }
